@@ -1,2 +1,64 @@
 @import './common';
 @import './example';
+
+header {
+  background-color: #4962bd;
+  height: 60px;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+
+  .search-form {
+    background-color: white;
+    display: flex;
+    overflow: hidden;
+    border-radius: 3px;
+    font-size: 1rem;
+
+    input {
+      border: none;
+      text-indent: 10px;
+      width: 250px;
+    }
+
+    button[type='submit'] {
+      border: none;
+
+      &:hover {
+        opacity: 0.8;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+// color for hover header #ced4ed;
+.gallery {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  padding: 30px;
+
+  .photo-card {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    color: inherit; /* blue colors for links too */
+    text-decoration: inherit;
+    display: flex;
+    flex-direction: column;
+
+    img {
+      max-width: 100%;
+      flex: 1;
+    }
+
+    .info {
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS',
+        sans-serif;
+    }
+  }
+}
