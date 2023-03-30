@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export const getImages = async ({ search_term, page = 1 }) => {
+  const per_page = 40;
+
   const {
     data: { hits, total, totalHits },
   } = await axios.get('https://pixabay.com/api/', {
@@ -10,10 +12,10 @@ export const getImages = async ({ search_term, page = 1 }) => {
       image_type: 'photo',
       orientation: 'horizontal',
       safesearch: true,
-      per_page: 40,
       page,
+      per_page,
     },
   });
 
-  return { hits, total, totalHits };
+  return { hits, total, totalHits, per_page };
 };
