@@ -6,7 +6,7 @@ import SimpleLightbox from 'simplelightbox';
 // Additional styles import
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const placeholder = `<p class="gallery-placeholder">Please enter your query...</p>`;
+const placeholder = `<p class="gallery-status">Please enter your query...</p>`;
 
 const galleryContainer = document.querySelector('.gallery');
 
@@ -14,6 +14,7 @@ const form = document.getElementById('search-form');
 const inputValue = form.querySelector('input[name=searchQuery]');
 const submitButton = form.querySelector('button[type="submit"]');
 const loadMoreButton = document.querySelector('.load-more');
+const loadingIndicator = document.getElementById('loading-indicator');
 
 // Controls the group number
 let page = 1;
@@ -23,6 +24,18 @@ let totalHits = 0;
 let isLoading = false;
 
 const galleryLightbox = new SimpleLightbox('.gallery a');
+
+const setLoadingIndicator = ({ isLoading: _isLoading }) => {
+  isLoading = _isLoading;
+
+  if (isLoading) {
+    loadingIndicator.classList.remove('hidden');
+
+    return;
+  }
+
+  loadingIndicator.classList.add('hidden');
+};
 
 const drawBatchOfHits = ({ hits }) => {
   const html = hits
@@ -67,14 +80,14 @@ const drawBatchOfHits = ({ hits }) => {
 };
 
 const getHits = async ({ page } = { page: 1 }) => {
-  isLoading = true;
+  setLoadingIndicator({ isLoading: true });
 
   // get the first batch according to the search criteria
   const { hits, total, totalHits, per_page } = await getImages({
     search_term,
     page,
   }).finally(() => {
-    isLoading = false;
+    setLoadingIndicator({ isLoading: false });
   });
 
   currentHitsLength = currentHitsLength + per_page;
@@ -82,14 +95,34 @@ const getHits = async ({ page } = { page: 1 }) => {
   const maxReached = currentHitsLength >= totalHits;
 
   if (maxReached) {
-    notiflix.Notify.failure(
-      `We're sorry, but you've reached the end of search results.`
-    );
-
-    return;
+    showReachedLimitOfResult();
   }
 
   return { hits, total, totalHits, per_page };
+};
+
+const loadMoreHits = async () => {
+  page = page + 1;
+
+  const { hits } = await getHits({ page });
+
+  drawBatchOfHits({ hits });
+};
+
+const showNotFoundNotification = () => {
+  notiflix.Notify.failure(
+    `Sorry, there are no images matching your search query. Please try again.`
+  );
+};
+
+const showReachedLimitOfResult = () => {
+  notiflix.Notify.failure(
+    `We're sorry, but you've reached the end of search results.`
+  );
+};
+
+const showFoundHitsNotification = ({ totalHits }) => {
+  notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
 };
 
 submitButton.addEventListener('click', async (event) => {
@@ -113,17 +146,13 @@ submitButton.addEventListener('click', async (event) => {
       return;
     }
 
-    galleryContainer.innerHTML = `<p class="gallery-status">Loading...</p>`;
-
     // get the first batch according to the search criteria
     const { hits, totalHits: _totalHits } = await getHits();
 
     totalHits = _totalHits;
-    galleryContainer.innerHTML = '';
 
     if (hits.length === 0) {
       showNotFoundNotification();
-
       return;
     }
 
@@ -131,29 +160,11 @@ submitButton.addEventListener('click', async (event) => {
 
     drawBatchOfHits({ hits });
   } catch (error) {
-    throw error;
+    console.error(error);
   }
 });
 
-const loadMoreHits = async () => {
-  page = page + 1;
-
-  const { hits } = await getHits({ page });
-
-  drawBatchOfHits({ hits });
-};
-
 loadMoreButton?.addEventListener('click', loadMoreHits);
-
-const showNotFoundNotification = () => {
-  notiflix.Notify.failure(
-    `Sorry, there are no images matching your search query. Please try again.`
-  );
-};
-
-const showFoundHitsNotification = ({ totalHits }) => {
-  notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
-};
 
 window.addEventListener('scroll', async () => {
   const { innerHeight, scrollY } = window;
