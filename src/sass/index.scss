@@ -7,6 +7,8 @@ header {
   display: flex;
   justify-content: space-around;
   padding: 10px;
+  position: sticky;
+  top: 0;
 
   .search-form {
     background-color: white;
@@ -19,14 +21,20 @@ header {
       border: none;
       text-indent: 10px;
       width: 250px;
+      outline: none;
     }
 
     button[type='submit'] {
       border: none;
+      width: 40px;
 
       &:hover {
         opacity: 0.8;
         cursor: pointer;
+
+        svg {
+          scale: 1.25;
+        }
       }
     }
   }
@@ -46,6 +54,8 @@ header {
     text-decoration: inherit;
     display: flex;
     flex-direction: column;
+    border-radius: 3px;
+    overflow: hidden;
 
     img {
       max-width: 100%;
